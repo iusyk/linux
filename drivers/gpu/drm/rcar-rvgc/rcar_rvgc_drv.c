@@ -284,7 +284,27 @@ static struct rpmsg_driver taurus_rvgc_client = {
 	.callback	= rcar_rvgc_cb,
 	.remove		= rcar_rvgc_remove,
 };
-module_rpmsg_driver(taurus_rvgc_client);
+
+static int __init rcar_rvgc_init(void)
+{
+        int ret = 0;
+
+        ret = register_rpmsg_driver(&taurus_rvgc_client);
+        if (ret < 0) {
+                pr_err("failed to register %s driver\n", __func__);
+                return -EAGAIN;
+        }
+
+        return ret;
+}
+subsys_initcall(rcar_rvgc_init);
+
+static void __exit rcar_rvgc_exit(void)
+{
+        unregister_rpmsg_driver(&taurus_rvgc_client);
+}
+
+module_exit(rcar_rvgc_exit);
 
 MODULE_AUTHOR("Vito Colagiacomo <vito.colagiacomo@renesas.com>");
 MODULE_DESCRIPTION("Renesas Virtual Graphics Card DRM Driver");
