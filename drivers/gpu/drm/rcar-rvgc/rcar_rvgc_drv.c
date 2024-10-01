@@ -188,7 +188,6 @@ static int rcar_rvgc_probe(struct rpmsg_device* rpdev) {
 	if (rcrvgc == NULL)
 		return -ENOMEM;
 
-	dev_set_drvdata(&rpdev->dev, rcrvgc);
 	rcrvgc->update_primary_plane = update_primary_plane;
 
 	/* Save a link to struct device and struct rpmsg_device */
@@ -258,6 +257,8 @@ static int rcar_rvgc_probe(struct rpmsg_device* rpdev) {
 		goto error;
 
 	drm_fbdev_generic_setup(ddev, 32);
+	
+	dev_set_drvdata(&rpdev->dev, rcrvgc);
 
 	DRM_INFO("Device %s probed\n", dev_name(&rpdev->dev));
 
@@ -284,7 +285,7 @@ static struct rpmsg_driver taurus_rvgc_client = {
 	.callback	= rcar_rvgc_cb,
 	.remove		= rcar_rvgc_remove,
 };
-
+/*
 static int __init rcar_rvgc_init(void)
 {
         int ret = 0;
@@ -296,8 +297,9 @@ static int __init rcar_rvgc_init(void)
         }
 
         return ret;
-}
-subsys_initcall(rcar_rvgc_init);
+}*/
+//subsys_initcall(rcar_rvgc_init);
+module_rpmsg_driver(taurus_rvgc_client);
 
 static void __exit rcar_rvgc_exit(void)
 {
