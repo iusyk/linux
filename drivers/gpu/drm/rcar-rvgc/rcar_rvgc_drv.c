@@ -179,6 +179,7 @@ static int rcar_rvgc_probe(struct rpmsg_device* rpdev) {
 	struct rcar_rvgc_device* rcrvgc;
 	struct drm_device* ddev;
 	struct device_node* rvgc_node;
+	struct rpmsg_channel_info;
 	int ret = 0;
 
 	printk(KERN_ERR "%s():%d\n", __FUNCTION__, __LINE__);
@@ -188,6 +189,7 @@ static int rcar_rvgc_probe(struct rpmsg_device* rpdev) {
 	if (rcrvgc == NULL)
 		return -ENOMEM;
 
+	dev_set_drvdata(&rpdev->dev, rcrvgc);
 	rcrvgc->update_primary_plane = update_primary_plane;
 
 	/* Save a link to struct device and struct rpmsg_device */
@@ -257,9 +259,21 @@ static int rcar_rvgc_probe(struct rpmsg_device* rpdev) {
 		goto error;
 
 	drm_fbdev_generic_setup(ddev, 32);
-	
-	dev_set_drvdata(&rpdev->dev, rcrvgc);
 
+	DRM_INFO("Device %s IHOR ept %d\n", dev_name(&rpdev->dev), (int)(rpdev->ept? 1:0));
+	
+	DRM_INFO("Device %s IHOR dst %d src %d\n", dev_name(&rpdev->dev), (int)(rpdev->dst), (int)(rpdev->src));
+	
+	/*rpmsg_channel_info ci;
+	ci.src = rpdev.src;
+	ci.dst = rpdev.dst;
+	strscpy(ci.name, name, RPMSG_NAME_SIZE);
+	info->info.src = addr;
+	info->info.dst = RPMSG_ADDR_ANY;
+	rpmsg_create_ept(rpdev, rcar_rvgc_cb, NULL,
+                                        struct rpmsg_channel_info chinfo);
+	*/
+	// rcar_rvgc_cb
 	DRM_INFO("Device %s probed\n", dev_name(&rpdev->dev));
 
 	return 0;
@@ -282,7 +296,7 @@ static struct rpmsg_driver taurus_rvgc_client = {
 	.drv.probe_type = PROBE_PREFER_ASYNCHRONOUS,
 	.id_table	= taurus_driver_rvgc_id_table,
 	.probe		= rcar_rvgc_probe,
-	.callback	= rcar_rvgc_cb,
+	/*.callback	= rcar_rvgc_cb,*/
 	.remove		= rcar_rvgc_remove,
 };
 /*
