@@ -179,7 +179,7 @@ static int rcar_rvgc_probe(struct rpmsg_device* rpdev) {
 	struct rcar_rvgc_device* rcrvgc;
 	struct drm_device* ddev;
 	struct device_node* rvgc_node;
-	struct rpmsg_channel_info;
+	struct rpmsg_channel_info ci;
 	int ret = 0;
 
 	printk(KERN_ERR "%s():%d\n", __FUNCTION__, __LINE__);
@@ -264,16 +264,14 @@ static int rcar_rvgc_probe(struct rpmsg_device* rpdev) {
 	
 	DRM_INFO("Device %s IHOR dst %d src %d\n", dev_name(&rpdev->dev), (int)(rpdev->dst), (int)(rpdev->src));
 	
-	/*rpmsg_channel_info ci;
-	ci.src = rpdev.src;
-	ci.dst = rpdev.dst;
-	strscpy(ci.name, name, RPMSG_NAME_SIZE);
-	info->info.src = addr;
-	info->info.dst = RPMSG_ADDR_ANY;
-	rpmsg_create_ept(rpdev, rcar_rvgc_cb, NULL,
-                                        struct rpmsg_channel_info chinfo);
-	*/
-	// rcar_rvgc_cb
+	strncpy(ci.name, rpdev->id.name, RPMSG_NAME_SIZE);
+    ci.src = rpdev->src; 
+    ci.dst = RPMSG_ADDR_ANY;
+	rpdev->ept= rpmsg_create_ept(rpdev, rcar_rvgc_cb, NULL, ci);
+	if(rpdev->ept)
+	{
+		DRM_INFO("IHOR ept DONE!!!!!\n");	
+	}
 	DRM_INFO("Device %s probed\n", dev_name(&rpdev->dev));
 
 	return 0;
